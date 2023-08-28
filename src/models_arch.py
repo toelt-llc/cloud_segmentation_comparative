@@ -493,21 +493,25 @@ def mk_DeeplabV3Plus(num_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG
     
     model_input = keras.Input(shape=(IMG_HEIGHT, IMG_WIDTH, 3))
 
-    # resnet50 = keras.applications.ResNet50(
-    #     weights="imagenet", include_top=False, input_tensor=model_input
-    # )
-    # x = resnet50.get_layer("conv4_block6_2_relu").output
-    
-    resnet101 = keras.applications.ResNet101(
+    resnet50 = keras.applications.ResNet50(
         weights="imagenet", include_top=False, input_tensor=model_input
     )
-    x = resnet101.get_layer("conv4_block6_2_relu").output
+    x = resnet50.get_layer("conv4_block6_2_relu").output
+    
+    # resnet101 = keras.applications.ResNet101(
+    #     weights="imagenet", include_top=False, input_tensor=model_input
+    # )
+    # x = resnet101.get_layer("conv4_block6_2_relu").output
     
     x = DilatedSpatialPyramidPooling(x)
 
     input_a = layers.UpSampling2D(size=(IMG_HEIGHT // 4 // x.shape[1], IMG_WIDTH // 4 // x.shape[2]), interpolation="bilinear",)(x)
     input_b = resnet50.get_layer("conv2_block3_2_relu").output
     input_b = convolution_block(input_b, num_filters=48, kernel_size=1)
+    
+    # input_a = layers.UpSampling2D(size=(IMG_HEIGHT // 4 // x.shape[1], IMG_WIDTH // 4 // x.shape[2]), interpolation="bilinear",)(x)
+    # input_b = resnet101.get_layer("conv2_block3_2_relu").output
+    # input_b = convolution_block(input_b, num_filters=48, kernel_size=1)
 
     x = layers.Concatenate(axis=-1)([input_a, input_b])
     x = convolution_block(x)

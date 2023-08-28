@@ -11,12 +11,14 @@ data_path = Path(project_root_path, "Data/")
 source_path = Path(project_root_path, "src/")
 notebooks_path = Path(project_root_path, "notebooks/")
 models_path = Path(project_root_path, "models/")
-# results_path = Path(project_root_path, "results/")
+results_path = Path(project_root_path, "results/")
+
 
 # Models
 saved_models_path = Path(models_path, "saved_models/")
-train_hystory_path = Path(models_path, "train_history/")
+train_history_path = Path(models_path, "train_history/")
 checkpoint_path = Path(models_path, "checkpoints/")
+
 
 # SPARCS:
 sparcs_path = Path(data_path, "SPARCS/")
@@ -56,20 +58,21 @@ Cloud95_additional = Path(Cloud95_path, "95-cloud_training_only_additional_to38-
 # cloudSEN12:
 cloudSEN12_path = Path(data_path, "cloudSEN12/")
 
-# Predictions:
-# sparcs_preds_dir = Path(results_path, "SPARCS/")
-# biome_preds_dir = Path(results_path, "S2_mlhub/")
-# s2_preds_dir = Path(results_path, "Biome8/")
+# Results:
+# sparcs_results_path = Path(results_path, "SPARCS/")
+# biome_results_path = Path(results_path, "Biome8/")
+# s2_results_path = Path(results_path, "S2/")
+# c95_results_path = Path(results_path, "95Cloud/")
 
 
-# if __name__ == "__main__":
-#     # Get the parent directory of the current script file
-#     current_dir = os.path.dirname(os.path.abspath(__file__))
-#     parent_dir = os.path.dirname(current_dir)
+# Check if the directories exist, and create them if they don't
 
-#     # Print the parent directory path
-#     print(parent_dir)
-#     print(current_dir)
+# Models:
+for directory in [models_path, saved_models_path, checkpoint_path, train_history_path]:
+    if not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)
 
-#     root_path = Path(os.path.dirname(os.path.abspath(__file__))).parent
-#     print(data_path)
+# Data:
+for directory in [sparcs_raw_dir, s2_path, biome_raw_dir, Cloud95_path, cloudSEN12_path, yolo_data_dir]:
+    if not os.path.exists(directory):
+        os.makedirs(directory, exist_ok=True)

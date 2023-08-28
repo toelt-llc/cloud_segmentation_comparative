@@ -25,12 +25,15 @@ import shutil
 import rasterio
 from sklearn.model_selection import train_test_split
 from collections import defaultdict
+import albumentations as A
+
 
 import warnings
 warnings.filterwarnings("ignore")
 
 from src.config import *
 from src.utils import resize_image
+
 
 seed_value = 42
 
@@ -43,6 +46,19 @@ np.random.seed(seed_value)
 
 
 def convert_12bit_to_8bit(image_12bit):
+    '''
+    Convert a 12-bit image to 8-bit by scaling the pixel values from the range [0, 4095] to [0, 255]
+
+    Parameters
+    ----------
+    image_12bit : numpy.ndarray
+        A 12-bit image
+    
+    Returns
+    -------
+    numpy.ndarray
+        An 8-bit image
+    '''
     # Scale the pixel values from the range [0, 4095] to [0, 255]
     image_8bit = (image_12bit.astype(float) / 4095.0) * 255.0
     # Convert the pixel values to 8-bit integers
@@ -51,6 +67,19 @@ def convert_12bit_to_8bit(image_12bit):
 
 
 def convert_16bit_to_8bit(image_16bit):
+    '''
+    Convert a 16-bit image to 8-bit by scaling the pixel values from the range [0, 65535] to [0, 255]
+    
+    Parameters
+    ----------
+    image_16bit : numpy.ndarray
+        A 16-bit image
+    
+    Returns 
+    -------
+    numpy.ndarray
+        An 8-bit image
+    '''
     # Scale the pixel values from the range [0, 65535] to [0, 255]
     image_8bit = (image_16bit.astype(float) / 65535.0 ) * 255.0
     # Convert the pixel values to 8-bit integers
@@ -59,12 +88,50 @@ def convert_16bit_to_8bit(image_16bit):
 
 
 def extract_patches(image, patch_size, stride):
+    '''
+    Extract patches from an image
+
+    Parameters
+    ----------
+    image : numpy.ndarray
+        An image
+    patch_size : tuple
+        The size of the patches to extract
+    stride : int
+        The stride to use when extracting the patches
+
+    Returns
+    -------
+    numpy.ndarray
+        An array of patches
+    '''
+
     patches = view_as_windows(image, patch_size, step=stride)
     patches = np.squeeze(patches)
     return patches  
 
 
 def prepare_SPARCS(sparcs_path:Path=sparcs_path, patch_size:int=256, overlap:int=64, valid_test_size:float=0.2, test_size:float=0.5) -> None:
+    '''
+    Prepare the SPARCS dataset for training, validation and testing.
+
+    Parameters
+    ----------
+    sparcs_path : Path
+        The path to the SPARCS dataset
+    patch_size : int
+        The size of the patches to extract
+    overlap : int
+        The overlap to use when extracting the patches
+    valid_test_size : float
+        The size of the validation and test sets
+    test_size : float
+        The size of the test set
+    
+    Returns
+    -------
+    None
+    '''
     # Create folders
     s = ['train', 'valid', 'test']
     splits_dir = [Path(sparcs_path, split) for split in s]
@@ -141,6 +208,9 @@ def prepare_SPARCS(sparcs_path:Path=sparcs_path, patch_size:int=256, overlap:int
                     
             # Saves test full images for visual scoring
             if idx == 2:
+                im = resize_image(im, (1024,1024,4))
+                mask = resize_image(mask, (1024,1024,1))
+
                 imsave(Path(im_folder, f"{p}.png"), im)
                 tiff.imwrite(Path(masks_folder, f"{p}.tif"), mask)
 
@@ -153,6 +223,22 @@ def prepare_SPARCS(sparcs_path:Path=sparcs_path, patch_size:int=256, overlap:int
 
 
 def prepare_S2(path: Path = s2_path, valid_test_size:float=0.2, test_size:float=0.5) -> None:
+    '''
+    Prepare the S2_mlhub dataset for training, validation and testing.
+
+    Parameters
+    ----------
+    path : Path
+        The path to the S2_mlhub dataset
+    valid_test_size : float
+        The size of the validation and test sets
+    test_size : float
+        The size of the test set
+
+    Returns
+    -------
+    None
+    '''
     s = ['train', 'valid', 'test']
     splits_dir = [Path(path, split) for split in s]
     for folder in splits_dir:
@@ -242,9 +328,23 @@ def prepare_S2(path: Path = s2_path, valid_test_size:float=0.2, test_size:float=
 
 
 def patch_image(img, patch_size, overlap):
-    """
+    '''
     Split up an image into smaller overlapping patches
-    """
+
+    Parameters
+    ----------
+    img : numpy.ndarray
+        An image
+    patch_size : int
+        The size of the patches to extract
+    overlap : int
+        The overlap to use when extracting the patches
+
+    Returns
+    -------
+    numpy.ndarray
+        An array of patches
+    '''
     if overlap >= patch_size:
         raise ValueError("Overlap must be less than patch size")
 
@@ -296,10 +396,26 @@ biomes = ['Barren', 'Forest', 'GrassCrops', 'Shrubland', 'SnowIce', 'Urban', 'Wa
 
 
 def prepare_biome8(biome_path: Path=biome_path, patch_size:int=512, overlap:int=128, valid_test_size:float=0.2, test_size:float=0.5) -> None:
-    """
+    '''
     Prepare the Biome8 dataset for training, validation and testing.
 
-    """
+    Parameters
+    ----------
+    biome_path : Path
+        The path to the Biome8 dataset
+    patch_size : int
+        The size of the patches to extract
+    overlap : int
+        The overlap to use when extracting the patches
+    valid_test_size : float
+        The size of the validation and test sets
+    test_size : float
+        The size of the test set
+
+    Returns
+    -------
+    None
+    '''
     # Create train, validation and test directories
     splits = ["train", "valid", "test"]
     splits_dir = {split: biome_path / split for split in splits}
@@ -369,6 +485,7 @@ def prepare_biome8(biome_path: Path=biome_path, patch_size:int=512, overlap:int=
                     # Save the full size test images for visual scoring
                     tiff.imwrite(Path(im_folder, f"{ID}.tif"), im)
                     tiff.imwrite(Path(masks_folder, f"{ID}.tif"), mask)
+
                     
                 # patch_size = patch_size  # Size of each patch
                 # overlap = 64  # Overlap size

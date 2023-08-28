@@ -34,17 +34,6 @@ import tensorflow as tf
 ####################################################################################################
 
 
-class TimeHistory(Callback):
-    def on_train_begin(self, logs={}):
-        self.times = []
-
-    def on_epoch_begin(self, batch, logs={}):
-        self.epoch_time_start = time.time()
-
-    def on_epoch_end(self, batch, logs={}):
-        self.times.append(time.time() - self.epoch_time_start)
-
-
 ####################################################################################################
 
 
@@ -128,20 +117,6 @@ def jacc_coef(y_true, y_pred):
     return 1 - ((intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) - intersection + smooth))
 
 ####################################################################################################
-
-
-def dice_coef(y_true, y_pred, smooth=1):
-    y_true_f = K.flatten(y_true)
-    y_pred_f = K.flatten(y_pred)
-    intersection = K.sum(y_true_f * y_pred_f)
-    return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
-
-def IoU(y_true, y_pred):
-    y_true_f = K.flatten(y_true)
-    y_pred_f = K.flatten(y_pred)
-    intersection = K.sum(y_true_f * y_pred_f)
-    union = K.sum(y_true_f) + K.sum(y_pred_f) - intersection
-    return intersection / union
 
 # def dice_loss(y_true, y_pred):
 #     numerator = 2 * tf.reduce_sum(y_true * y_pred, axis=-1)
