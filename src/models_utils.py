@@ -1,61 +1,21 @@
-# import os
-# import cv2
+# Numerical and Data Handling
 import numpy as np
-# from glob import glob
-# from scipy.io import loadmat
-# import matplotlib.pyplot as plt
+
+# Custom Configuration and Type Hints
 from typing import Callable, Dict, List, Optional, Union
+from src.models_arch import *  
 
-from src.models_arch import *
-
-import time
-import tensorflow as tf
-from tensorflow import keras
-# from tensorflow.keras import Model
-from tensorflow.keras.callbacks import Callback
-
-from tensorflow.keras.metrics import Metric
-from keras import layers
-from keras.models import Model
-from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate, Conv2DTranspose, BatchNormalization, Dropout, Lambda
-from keras.layers import *
-import keras
-from tensorflow.keras.optimizers import *
-
-from keras import backend as K
-from keras.backend import binary_crossentropy
-
-from typing import Callable, Dict, List, Optional, Union
-from tensorflow.keras.metrics import Metric
-from tensorflow.keras.models import Model
-import tensorflow as tf
+# Deep Learning Framework
+import tensorflow as tf 
+from tensorflow.keras.metrics import Metric 
+from tensorflow.keras.optimizers import *  
+from tensorflow import keras 
+from keras.models import Model  
+from keras.layers import *  
+from keras import backend as K  
 
 
-####################################################################################################
-
-
-####################################################################################################
-
-
-# class BinaryMeanIoU(tf.keras.metrics.Metric):
-#     def __init__(self, name='binary_mean_iou', threshold=0.5, **kwargs):
-#         super(BinaryMeanIoU, self).__init__(name=name, **kwargs)
-#         self.threshold = threshold
-#         self.mean_iou = tf.keras.metrics.MeanIoU(num_classes=2)
-    
-#     def update_state(self, y_true, y_pred, sample_weight=None):
-#         y_pred = tf.cast(y_pred > self.threshold, tf.float32)
-#         return self.mean_iou.update_state(y_true, y_pred, sample_weight)
-    
-#     def result(self):
-#         return self.mean_iou.result()
-    
-#     def reset_state(self):
-#         self.mean_iou.reset_states()
-        
-
-####################################################################################################
-
+# Define the loss functions
 def dice_loss(y_true, y_pred):
     smooth = 1.
     y_true = tf.cast(y_true, tf.float32)
@@ -69,44 +29,6 @@ def bce_dice_loss(y_true, y_pred):
     return 0.5 * tf.keras.losses.binary_crossentropy(y_true, y_pred) + dice_loss(y_true, y_pred)
 
 
-# --------------------------------------------------------
-
-
-def jaccard_loss(y_true, y_pred):
-    y_true = tf.cast(y_true, tf.float32)
-    y_pred = tf.cast(y_pred, tf.float32)
-    intersection = tf.reduce_sum(y_true * y_pred, axis=-1)
-    union = tf.reduce_sum(y_true + y_pred, axis=-1) - intersection + 1e-6
-    jaccard_loss = 1 - (intersection / union)
-    return jaccard_loss
-
-def jaccard_coef(y_true, y_pred):
-    y_true = tf.cast(y_true, tf.float32)
-    y_pred = tf.cast(y_pred, tf.float32)
-    smooth = 1e-12
-    intersection = K.sum(y_true * y_pred, axis=[0, -1, -2])  # Sum the product in all axes
-    sum_ = K.sum(y_true + y_pred, axis=[0, -1, -2])  # Sum the sum in all axes
-    jac = (intersection + smooth) / (sum_ - intersection + smooth)  # Calc jaccard
-    return K.mean(jac)
-
-def jaccard_coef_thresholded(y_true, y_pred):
-    y_true = tf.cast(y_true, tf.float32)
-    y_pred = tf.cast(y_pred, tf.float32)
-    smooth = 1e-12
-    y_pred_pos = K.round(K.clip(y_pred, 0, 1))  # Round to 0 or 1
-    intersection = K.sum(y_true * y_pred_pos, axis=[0, -1, -2])
-    sum_ = K.sum(y_true + y_pred_pos, axis=[0, -1, -2])
-    jac = (intersection + smooth) / (sum_ - intersection + smooth)
-    return K.mean(jac)
-
-def jaccard_coef_loss(y_true, y_pred):
-    y_true = tf.cast(y_true, tf.float32)
-    y_pred = tf.cast(y_pred, tf.float32)
-    return -K.log(jaccard_coef(y_true, y_pred)) + binary_crossentropy(y_pred, y_true)
-
-# ------------------------------------------------------
-
-# This is a loss function
 def jacc_coef(y_true, y_pred):
     smooth = 0.0000001
     y_true = tf.cast(y_true, tf.float32)
@@ -116,25 +38,15 @@ def jacc_coef(y_true, y_pred):
     intersection = K.sum(y_true_f * y_pred_f)
     return 1 - ((intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) - intersection + smooth))
 
-####################################################################################################
-
-# def dice_loss(y_true, y_pred):
-#     numerator = 2 * tf.reduce_sum(y_true * y_pred, axis=-1)
-#     denominator = tf.reduce_sum(y_true + y_pred, axis=-1) + 1e-6
-#     dice_loss = 1 - (numerator / denominator)
-#     return dice_loss
-
-# def jaccard_loss(y_true, y_pred):
-#     intersection = tf.reduce_sum(y_true * y_pred, axis=-1)
-#     union = tf.reduce_sum(y_true + y_pred, axis=-1) - intersection + 1e-6
-#     jaccard_loss = 1 - (intersection / union)
-#     return jaccard_loss
-
 
 # def jaccard_coef(y_true, y_pred):
 #     """
 #     Calculates the Jaccard index
 #     """
+
+#     y_true = tf.cast(y_true, tf.float32)
+#     y_pred = tf.cast(y_pred, tf.float32)
+
 #     # From https://github.com/ternaus/kaggle_dstl_submission/blob/master/src/unet_crops.py
 #     smooth = 1e-12
 #     intersection = K.sum(y_true * y_pred, axis=[0, -1, -2])  # Sum the product in all axes
@@ -150,6 +62,10 @@ def jacc_coef(y_true, y_pred):
 #     """
 #     Calculates the binarized Jaccard index
 #     """
+
+#     y_true = tf.cast(y_true, tf.float32)
+#     y_pred = tf.cast(y_pred, tf.float32)
+
 #     # From https://github.com/ternaus/kaggle_dstl_submission/blob/master/src/unet_crops.py
 #     smooth = 1e-12
 
@@ -168,6 +84,10 @@ def jacc_coef(y_true, y_pred):
 #     """
 #     Calculates the loss as a function of the Jaccard index and binary crossentropy
 #     """
+
+#     y_true = tf.cast(y_true, tf.float32)
+#     y_pred = tf.cast(y_pred, tf.float32)
+
 #     # From https://github.com/ternaus/kaggle_dstl_submission/blob/master/src/unet_crops.py
 #     return -K.log(jaccard_coef(y_true, y_pred)) + binary_crossentropy(y_pred, y_true)
 
@@ -179,23 +99,34 @@ def jacc_coef(y_true, y_pred):
 AVAILABLE_MODELS = {
     'simple_net': mk_simple_net,
     'unet': mk_multi_unet_model,
-    # 'unet_2': mk_DL_L8S2_UV_UNET,
     'unet_plus_plus': mk__unet_plusplus,
     'rs_net': mk_rs_net,
     'deep_lab_v3_plus': mk_DeeplabV3Plus,
     'CXNet': mk_cloudXnet,
     'cloud_net': mk_cloud_net,
-    # 'GAN': None,
     }
 
 
 def create_model(
-    model_name: str = 'simple_net', 
+    model_name: str = 'unet', 
     n_classes: int = 1, 
     IMG_HEIGHT: Optional[int] = None, 
     IMG_WIDTH: Optional[int] = None, 
     IMG_CHANNELS: int = 4,
     ) -> Model:
+    '''
+    Create a model with the given name and parameters.
+
+    Parameters:
+        model_name: The name of the model to create
+        n_classes: The number of classes
+        IMG_HEIGHT: The height of the input images
+        IMG_WIDTH: The width of the input images
+        IMG_CHANNELS: The number of channels of the input images
+
+    Returns:
+        The created model
+    '''
 
     if model_name not in AVAILABLE_MODELS:
         raise ValueError(
@@ -221,6 +152,20 @@ def compile_model(
     optimizer_params: Optional[Dict[str, float]] = None,
     metrics: Optional[Union[str, List[str], List[Metric]]] = None
 ) -> Model:
+    '''
+    Compile the model with the given optimizer, loss and metrics.
+    
+    Parameters:
+        model: The model to compile
+        optimizer: The optimizer to use
+        loss: The loss function to use
+        loss_params: The parameters for the loss function
+        optimizer_params: The parameters for the optimizer
+        metrics: The metrics to use
+        
+        Returns:
+            The compiled model
+    '''
     
     optimizer = tf.keras.optimizers.get(optimizer)
     
@@ -253,8 +198,3 @@ def get_metrics(metrics: Optional[Union[str, List[str], List[Metric]]]) -> List[
         return [tf.keras.metrics.get(metrics)]
     if isinstance(metrics, list):
         return [tf.keras.metrics.get(m) if isinstance(m, str) else m for m in metrics]
-    
-
-####################################################################################################
-
-

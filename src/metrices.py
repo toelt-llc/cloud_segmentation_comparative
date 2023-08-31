@@ -1,57 +1,15 @@
-from sklearn.metrics import confusion_matrix
 # Libraries for model evaluation and validation
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, roc_auc_score, confusion_matrix, f1_score
-from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.metrics import precision_score, recall_score, f1_score, jaccard_score, accuracy_score, roc_auc_score, confusion_matrix
 from keras import backend as K
-
-from sklearn.metrics import accuracy_score, jaccard_score
 import numpy as np
 
-# ###precision---
-# def precision(gt, mask):
-#     gt = gt.flatten()
-#     mask = mask.flatten()
-#     tn, fp, fn, tp = confusion_matrix(gt, mask, labels=[0, 1]).ravel()
-#     prec = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-#     return prec
-
-# ####recall---
-# def recall(gt,mask):
-#     gt = gt.flatten()
-#     mask = mask.flatten()
-#     tn, fp, fn, tp = confusion_matrix(gt, mask, labels=[0, 1]).ravel()
-#     rec = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-#     return rec
-
-# ###f1 score--
-# def f1_score(prec,rec):
-#     if (prec + rec) > 0:
-#         f1 = 2 * (prec * rec) / (prec + rec)
-#     else:
-#         f1 = 0.0
-#     return f1
-
-# ### jaccard 
-# def jaccard(gt,mask):
-#     gt = gt.flatten()
-#     mask = mask.flatten()
-#     tn, fp, fn, tp = confusion_matrix(gt, mask, labels=[0, 1]).ravel()
-#     jaccard_index = tp / (tp + fn + fp) if (tp + fn + fp) > 0 else 0.0
-#     return jaccard_index
-
-
-def Overall(gt,mask):
-    gt = gt.flatten()
-    mask = mask.flatten()
-    tn, fp, fn, tp = confusion_matrix(gt, mask, labels=[0, 1]).ravel()
-    overall_accuracy = (tp + tn) / (tp + fp + fn + tn) if (tp + fp + fn + tn) > 0 else 0.0
-    return overall_accuracy
-
-###aji score
+# annoration jaccard index score
 def get_fast_aji(true, pred):
-    
-    true = np.copy(true) # ? do we need this
+    '''
+    AJI fast evaluation script from https://github.com/shyamfec/CloudXNet/blob/master/metrices.py
+    '''
+
+    true = np.copy(true)
     pred = np.copy(pred)
     true_id_list = list(np.unique(true))
     pred_id_list = list(np.unique(pred))
@@ -113,58 +71,12 @@ def get_fast_aji(true, pred):
     return aji_score
 
 
-# def print_m(Y_test, preds_test_t):
-#     sum_m = 0
-#     for i in range(len(Y_test)):
-#         sum_m = sum_m + precision(Y_test[i],preds_test_t[i])
-#     prec = sum_m/len(Y_test)
-
-#     sum_m = 0
-#     for i in range(len(Y_test)):
-#         sum_m = sum_m + recall(Y_test[i],preds_test_t[i])
-#     rec = sum_m/len(Y_test)
-
-#     sum_m = 0
-#     for i in range(len(Y_test)):
-#         sum_m = sum_m + jaccard(Y_test[i],preds_test_t[i])
-#     jaccard1 = sum_m/len(Y_test)
-
-
-#     sum_m = 0
-#     for i in range(len(Y_test)):
-#         sum_m = sum_m + Overall(Y_test[i],preds_test_t[i])
-#     Overall1 = sum_m/len(Y_test)
-
-
-#     f1 = f1_score(prec,rec)
-
-#     aji = get_fast_aji(Y_test,preds_test_t)
-
-#     print("Jaccard Index", jaccard1)
-#     print("final f1", f1)
-#     print("final precision",prec)
-#     print("final recall",rec)
-#     print("Overall Accuracy", Overall1)
-#     print("Average Jaccard Index", aji)
-
-
-def avg_metrics(Y_test, preds_test_t):
-    sum_m = 0
-    for i in range(len(Y_test)):
-        sum_m = sum_m + Overall(Y_test[i],preds_test_t[i])
-    Overall1 = sum_m/len(Y_test)
-
-    aji = get_fast_aji(Y_test,preds_test_t)
-
-    return Overall1, aji
-
-# ------------------------------------------------------
-
 def dice_coef(y_true, y_pred, smooth=1):
     y_true_f = K.flatten(y_true)
     y_pred_f = K.flatten(y_pred)
     intersection = K.sum(y_true_f * y_pred_f)
     return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
+
 
 def IoU(y_true, y_pred):
     y_true_f = K.flatten(y_true)
@@ -174,7 +86,17 @@ def IoU(y_true, y_pred):
     return intersection / union
 
 
-def print_metrics(y_true, y_pred):
+def print_metrics(y_true:np.ndarray, y_pred:np.ndarray):
+    '''
+    Print out metrics for model evaluation
+    
+    Parameters:
+        y_true: Ground truth labels
+        y_pred: Predicted labels
+        
+        Returns:
+            None
+    '''
     # Cast to float types
     y_true_f = y_true.astype('float32')
     y_pred_f = y_pred.astype('float32')
@@ -193,19 +115,27 @@ def print_metrics(y_true, y_pred):
     print("Dice Coefficient: ", round(K.eval(dice_coef(y_true_f, y_pred_f)), 4))
     
     # Jaccard Score
-    
-#     print("IoU (Jaccard Coefficient): ", round(K.eval(IoU(y_true_f, y_pred_f)), 4))
-    
-#     print("Jaccard Coefficient: ", round(jaccard(y_true_f, y_pred_f), 4))
-
+    # print("IoU (Jaccard Coefficient): ", round(K.eval(IoU(y_true_f, y_pred_f)), 4))
+    # print("Jaccard Coefficient: ", round(jaccard(y_true_f, y_pred_f), 4))
     print("Jaccard Score (IoU): ", round(jaccard_score(y_true_flatten, y_pred_flatten), 4))
 
-    print("-------------------------------------")
+    # print("-------------------------------------")
+    # aji = get_fast_aji(y_true_f, y_pred_f)
+    # print("Average Jaccard Index", round(aji, 4))
 
-    aji, o_acc = avg_metrics(y_true_f, y_pred_f)
+    # Calculate cloud coverage metric in percentage
+    cloud_coverage_ground_truth = (y_true_f == 1).sum() / ((y_true_f == 0).sum() + (y_true_f == 1).sum()) * 100
+    cloud_coverage_predicted = (y_pred_f == 1).sum() / ((y_pred_f == 0).sum() + (y_pred_f == 1).sum()) * 100
 
-    print("Overall Accuracy", round(o_acc, 4))
-    print("Average Jaccard Index", round(aji, 4))
+    print("Cloud Coverage (Ground Truth): ", round(cloud_coverage_ground_truth, 2), "%")
+    print("Cloud Coverage (Predicted): ", round(cloud_coverage_predicted, 2), "%")
+    
+    # Calculate similarity between ground truth and predicted cloud coverage
+    coverage_similarity = 1 - abs(cloud_coverage_ground_truth - cloud_coverage_predicted) / 100
+
+    print("Coverage Similarity: ", round(coverage_similarity, 4))
+
+    print(f"Coverage Similarity: {round(coverage_similarity, 4)} ({round(cloud_coverage_ground_truth, 2)} %, {round(cloud_coverage_predicted, 2)} %)")
     
 
 def find_best_threshold(prob_mask, y_true):

@@ -27,14 +27,14 @@ Moreover, satellite images are significantly influenced by factors such as shado
 
 ## Installation
 The project require Python 3.7 or higher. The following dependencies are required to run the code in this repository:
-Numpy
-Pandas
-Matplotlib
-Scikit-learn
-Scikit-image
-OpenCV
-Tensorflow
-Torch
+- Numpy
+- Pandas
+- Matplotlib
+- Scikit-learn
+- Scikit-image
+- OpenCV
+- Tensorflow
+- Torch
 
 ## Algorithms Studied
 Here you can find a list of the papers that were studied in this research:

@@ -1,31 +1,18 @@
-# import os
-# import cv2
-import numpy as np
-# from glob import glob
-# from scipy.io import loadmat
-# import matplotlib.pyplot as plt
-from typing import Callable, Dict, List, Optional, Union
+# Deep Learning Framework
+import tensorflow as tf  
+from tensorflow.keras.optimizers import *  
+from tensorflow import keras 
+from keras import layers  
+from keras.layers import *  
+from keras.models import Model  
+from keras import backend as K 
 
-import time
-import tensorflow as tf
-from tensorflow import keras
-# from tensorflow.keras import Model
-from tensorflow.keras.metrics import Metric
-from keras import layers
-from keras.models import Model
-from keras.layers import Input, Conv2D, MaxPooling2D, UpSampling2D, concatenate, Conv2DTranspose, BatchNormalization, Dropout, Lambda
-from keras.layers import *
-import keras
-from tensorflow.keras.optimizers import *
+# Define image-related constants
+IMG_WIDTH = 256 
+IMG_HEIGHT = 256  
+IMG_CHANNELS = 4  
+n_classes = 1  
 
-from keras import backend as K
-from keras.backend import binary_crossentropy
-
-
-IMG_WIDTH       = 256
-IMG_HEIGHT      = 256
-IMG_CHANNELS    = 4
-n_classes       = 1
 
 ####################################################################################################
 
@@ -47,9 +34,7 @@ def mk_simple_net(n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_WIDT
 
 
 def mk_multi_unet_model(n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_WIDTH, IMG_CHANNELS=IMG_CHANNELS):
-#Build the model
     inputs = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
-    #s = Lambda(lambda x: x / 255)(inputs)   #No need for this if we normalize our inputs beforehand
     s = inputs
 
     #Contraction path
@@ -106,11 +91,6 @@ def mk_multi_unet_model(n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IM
      
     model = Model(inputs=[inputs], outputs=[outputs])
     
-    #NOTE: Compile the model in the main program to make it easy to test with various loss functions
-    #model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
-    
-    #model.summary()
-    
     return model
 
 
@@ -121,7 +101,6 @@ def mk__unet_plusplus(n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_
     nb_filter = [32,64,128,256,512]
     # Build U-Net++ model
     inputs = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
-    # s = Lambda(lambda x: x / 255) (inputs)
 
     c1 = Conv2D(32, (3, 3), activation='elu', kernel_initializer='he_normal', padding='same') (inputs)
     c1 = Dropout(0.5) (c1)
@@ -234,8 +213,6 @@ def mk__unet_plusplus(n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_
 
 def mk_rs_net(n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_WIDTH, IMG_CHANNELS=IMG_CHANNELS, use_batch_norm=True, dropout_on_last_layer_only=True):
     input_layer = keras.Input(shape=(IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), name='input')
-    # input_layer = keras.layers.Input(shape=(None, None, 3), name='input')
-    # inputs = Input((params.patch_size, params.patch_size, n_bands))
     # -----------------------------------------------------------------------
     conv1 = keras.layers.Conv2D(filters=32, kernel_size=(3,3), activation='relu', padding='same',
                       kernel_regularizer=tf.keras.regularizers.L2(1e-4))(input_layer)
@@ -308,147 +285,11 @@ def mk_rs_net(n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_WIDTH, I
                       kernel_regularizer=tf.keras.regularizers.L2(1e-4))(conv9)
     conv9 = keras.layers.Dropout(0.5)(conv9)
     # -----------------------------------------------------------------------
-    # clip_pixels = np.int32(params.overlap / 2)  # Only used for input in Cropping2D function on next line
-    # crop9 = Cropping2D(cropping=((clip_pixels, clip_pixels), (clip_pixels, clip_pixels)))(conv9)
-    # -----------------------------------------------------------------------
-    # conv10 = Conv2D(n_cls, (1, 1), activation='sigmoid')(crop9)
-    # -----------------------------------------------------------------------
-    # model = Model(inputs=inputs, outputs=conv10)
     conv10 = keras.layers.Conv2D(filters=n_classes, kernel_size=(1,1), activation='sigmoid')(conv9)
+    # -----------------------------------------------------------------------
     model = keras.Model(inputs=input_layer, outputs=conv10)
 
     return model
-
-
-####################################################################################################
-
-
-# def conv_blocks(
-#     ip_,
-#     nfilters,
-#     axis_batch_norm,
-#     reg,
-#     name,
-#     batch_norm,
-#     remove_bias_if_batch_norm=False,
-#     dilation_rate=(1, 1),
-# ):
-#     use_bias = not (remove_bias_if_batch_norm and batch_norm)
-
-#     conv = tf.keras.layers.SeparableConv2D(
-#         nfilters,
-#         (3, 3),
-#         padding="same",
-#         name=name + "_conv_1",
-#         depthwise_regularizer=reg,
-#         pointwise_regularizer=reg,
-#         dilation_rate=dilation_rate,
-#         use_bias=use_bias,
-#     )(ip_)
-
-#     if batch_norm:
-#         conv = tf.keras.layers.BatchNormalization(axis=axis_batch_norm, name=name + "_bn_1")(conv)
-
-#     conv = tf.keras.layers.Activation("relu", name=name + "_act_1")(conv)
-
-#     conv = tf.keras.layers.SeparableConv2D(
-#         nfilters,
-#         (3, 3),
-#         padding="same",
-#         name=name + "_conv_2",
-#         use_bias=use_bias,
-#         dilation_rate=dilation_rate,
-#         depthwise_regularizer=reg,
-#         pointwise_regularizer=reg,
-#     )(conv)
-
-#     if batch_norm:
-#         conv = tf.keras.layers.BatchNormalization(axis=axis_batch_norm, name=name + "_bn_2")(conv)
-
-#     return tf.keras.layers.Activation("relu", name=name + "_act_2")(conv)
-
-
-# def mk_DL_L8S2_UV_UNET(n_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG_WIDTH, IMG_CHANNELS=IMG_CHANNELS, weight_decay=0.05, batch_norm=True, final_activation="sigmoid"):
-
-#     # def load_model(shape=(None, None), bands_input=4, weight_decay=0.0, final_activation="sigmoid"):
-#     # ip = tf.keras.layers.Input(shape + (bands_input,), name="ip_cloud")
-#     # c11 = tf.keras.layers.Conv2D(bands_input, (1, 1), name="normalization_cloud", trainable=False)
-#     # x_init = c11(ip)
-#     # conv2d10 = build_unet_model_fun(
-#     #     x_init, weight_decay=weight_decay, final_activation=final_activation, batch_norm=True
-#     # )
-#     # return tf.keras.models.Model(inputs=[ip], outputs=[conv2d10], name="UNet-Clouds")
-
-#     # input_layer = keras.Input(shape=(IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), name='input')
-
-#     ip = tf.keras.layers.Input(shape=(IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), name="ip_cloud")
-
-#     c11 = tf.keras.layers.Conv2D(IMG_CHANNELS, (1, 1), name="normalization_cloud", trainable=False)
-
-#     x_init = c11(ip)
-
-#     axis_batch_norm = 3
-
-#     reg = tf.keras.regularizers.l2(weight_decay)
-
-#     conv1 = conv_blocks(x_init, 32, axis_batch_norm, reg, name="input", batch_norm=batch_norm)
-
-#     pool1 = tf.keras.layers.MaxPooling2D(pool_size=(2, 2), name="pooling_1")(conv1)
-
-#     conv2 = conv_blocks(pool1, 64, axis_batch_norm, reg, name="pool1", batch_norm=batch_norm)
-
-#     pool2 = tf.keras.layers.MaxPooling2D(pool_size=(2, 2), name="pooling_2")(conv2)
-
-#     conv3 = conv_blocks(pool2, 128, axis_batch_norm, reg, name="pool2", batch_norm=batch_norm)
-
-#     up8 = tf.keras.layers.concatenate(
-#         [
-#             tf.keras.layers.Conv2DTranspose(
-#                 64, (2, 2), strides=(2, 2), padding="same", name="upconv1", kernel_regularizer=reg
-#             )(conv3),
-#             conv2,
-#         ],
-#         axis=axis_batch_norm,
-#         name="concatenate_up_1",
-#     )
-
-#     conv8 = conv_blocks(up8, 64, axis_batch_norm, reg, name="up1", batch_norm=batch_norm)
-
-#     up9 = tf.keras.layers.concatenate(
-#         [
-#             tf.keras.layers.Conv2DTranspose(
-#                 32, (2, 2), strides=(2, 2), padding="same", name="upconv2", kernel_regularizer=reg
-#             )(conv8),
-#             conv1,
-#         ],
-#         axis=axis_batch_norm,
-#         name="concatenate_up_2",
-#     )
-
-#     conv9 = conv_blocks(up9, 32, axis_batch_norm, reg, name="up2", batch_norm=batch_norm)
-
-#     conv10 = tf.keras.layers.Conv2D(
-#         n_classes, (1, 1), kernel_regularizer=reg, name="linear_model", activation=final_activation
-#     )(conv9)
-
-#     # return conv10
-
-#     return tf.keras.models.Model(inputs=[ip], outputs=[conv10], name="UNet-Clouds")
-
-
-# NORM_OFF_PROBAV = np.array([0.43052389, 0.40560079, 0.46504526, 0.23876471])
-# ID_KERNEL_INITIALIZER =np.eye(4)[None, None]
-# c11.set_weights([ID_KERNEL_INITIALIZER, -NORM_OFF_PROBAV])
-
-
-# def load_model(shape=(None, None), bands_input=4, weight_decay=0.0, final_activation="sigmoid"):
-#     ip = tf.keras.layers.Input(shape + (bands_input,), name="ip_cloud")
-#     c11 = tf.keras.layers.Conv2D(bands_input, (1, 1), name="normalization_cloud", trainable=False)
-#     x_init = c11(ip)
-#     conv2d10 = build_unet_model_fun(
-#         x_init, weight_decay=weight_decay, final_activation=final_activation, batch_norm=True
-#     )
-#     return tf.keras.models.Model(inputs=[ip], outputs=[conv2d10], name="UNet-Clouds")
 
 
 ####################################################################################################
@@ -491,27 +332,18 @@ def mk_DeeplabV3Plus(num_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG
         output = convolution_block(x, kernel_size=1)
         return output
     
-    model_input = keras.Input(shape=(IMG_HEIGHT, IMG_WIDTH, 3))
+    model_input = keras.Input(shape=(IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
 
     resnet50 = keras.applications.ResNet50(
         weights="imagenet", include_top=False, input_tensor=model_input
     )
     x = resnet50.get_layer("conv4_block6_2_relu").output
     
-    # resnet101 = keras.applications.ResNet101(
-    #     weights="imagenet", include_top=False, input_tensor=model_input
-    # )
-    # x = resnet101.get_layer("conv4_block6_2_relu").output
-    
     x = DilatedSpatialPyramidPooling(x)
 
     input_a = layers.UpSampling2D(size=(IMG_HEIGHT // 4 // x.shape[1], IMG_WIDTH // 4 // x.shape[2]), interpolation="bilinear",)(x)
     input_b = resnet50.get_layer("conv2_block3_2_relu").output
     input_b = convolution_block(input_b, num_filters=48, kernel_size=1)
-    
-    # input_a = layers.UpSampling2D(size=(IMG_HEIGHT // 4 // x.shape[1], IMG_WIDTH // 4 // x.shape[2]), interpolation="bilinear",)(x)
-    # input_b = resnet101.get_layer("conv2_block3_2_relu").output
-    # input_b = convolution_block(input_b, num_filters=48, kernel_size=1)
 
     x = layers.Concatenate(axis=-1)([input_a, input_b])
     x = convolution_block(x)
@@ -520,12 +352,10 @@ def mk_DeeplabV3Plus(num_classes=n_classes, IMG_HEIGHT=IMG_HEIGHT, IMG_WIDTH=IMG
         size=(IMG_HEIGHT // x.shape[1], IMG_WIDTH // x.shape[2]),
         interpolation="bilinear",
     )(x)
+
     model_output = layers.Conv2D(num_classes, kernel_size=(1, 1), padding="same", activation='sigmoid')(x)
+
     return keras.Model(inputs=model_input, outputs=model_output)
-
-
-# model = DeeplabV3Plus(image_size=IMAGE_SIZE, num_classes=NUM_CLASSES)
-# model.summary()
 
 
 ####################################################################################################

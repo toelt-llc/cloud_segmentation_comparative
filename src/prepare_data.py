@@ -1,39 +1,26 @@
-import sys
+# Standard Library Imports
 import os
-import scipy
-import pandas as pd
-import numpy as np
+import sys
 import random
-import seaborn as sns
-import tifffile as tiff
-import matplotlib
-from matplotlib import pyplot as plt
+from pathlib import Path
+import warnings
+warnings.filterwarnings("ignore")
 
-from PIL import Image
+# Third-party Library Imports
+import numpy as np
+import tifffile as tiff
 from skimage.io import imread, imsave
 from skimage.util import view_as_windows
-from skimage.transform import resize
-from skimage import img_as_ubyte
-from skimage.color import gray2rgb
-
-
-from pathlib import Path
-import numpy as np
 import tifffile as tiff
 from tqdm import tqdm
 import shutil
 import rasterio
 from sklearn.model_selection import train_test_split
-from collections import defaultdict
-import albumentations as A
+# import albumentations as A
 
-
-import warnings
-warnings.filterwarnings("ignore")
-
+# Custom Imports
 from src.config import *
 from src.utils import resize_image
-
 
 seed_value = 42
 
@@ -164,12 +151,6 @@ def prepare_SPARCS(sparcs_path:Path=sparcs_path, patch_size:int=256, overlap:int
                 shutil.rmtree(folder)
             os.mkdir(folder)
 
-        # patch_size = 240  # Size of each patch
-        # overlap = 80  # Overlap size
-        # stride = 160
-
-        # patch_size = patch_size
-        # Overlap size = 64
         stride = patch_size - overlap
 
         # Save images and masks in 8bit
@@ -177,13 +158,6 @@ def prepare_SPARCS(sparcs_path:Path=sparcs_path, patch_size:int=256, overlap:int
             # Images
             im = tiff.imread(Path(sparcs_raw_dir, f"{p}_data.tif"))
             im = convert_16bit_to_8bit(im)
-
-            # if rgb:
-                # im = np.flip(im[:,:,1:4], axis=2)
-                # im = im[:,:,1:4]
-
-                # im_patches = extract_patches(im, (patch_size, patch_size, 3), stride)
-            # else:
             im = im[:,:,1:5]
             im_patches = extract_patches(im, (patch_size, patch_size, 4), stride)
 
@@ -291,41 +265,6 @@ def prepare_S2(path: Path = s2_path, valid_test_size:float=0.2, test_size:float=
             
 #####################################################################
 
-    
-# def patch_image(img, patch_size, overlap):
-#     """
-#     Split up an image into smaller overlapping patches
-#     """
-#     # TODO: Get the size of the padding right.
-#     # Add zeropadding around the image (has to match the overlap)
-#     img_shape = np.shape(img)
-#     img_padded = np.zeros((img_shape[0] + 2*patch_size, img_shape[1] + 2*patch_size, img_shape[2]))
-#     img_padded[overlap:overlap + img_shape[0], overlap:overlap + img_shape[1], :] = img
-
-#     # Find number of patches
-#     n_width = int((np.size(img_padded, axis=0) - patch_size) / (patch_size - overlap))
-#     n_height = int((np.size(img_padded, axis=1) - patch_size) / (patch_size - overlap))
-
-#     # Now cut into patches
-#     n_bands = np.size(img_padded, axis=2)
-#     img_patched = np.zeros((n_height * n_width, patch_size, patch_size, n_bands), dtype=img.dtype)
-#     for i in range(0, n_width):
-#         for j in range(0, n_height):
-#             id = n_height * i + j
-
-#             # Define "pixel coordinates" of the patches in the whole image
-#             xmin = patch_size * i - i * overlap
-#             xmax = patch_size * i + patch_size - i * overlap
-#             ymin = patch_size * j - j * overlap
-#             ymax = patch_size * j + patch_size - j * overlap
-
-#             # Cut out the patches.
-#             # img_patched[id, width , height, depth]
-#             img_patched[id, :, :, :] = img_padded[xmin:xmax, ymin:ymax, :]
-
-#     return img_patched, n_height, n_width 
-
-
 
 def patch_image(img, patch_size, overlap):
     '''
@@ -349,8 +288,6 @@ def patch_image(img, patch_size, overlap):
         raise ValueError("Overlap must be less than patch size")
 
     img_shape = img.shape
-    # if len(img_shape) != 3 or img_shape[2] != 4:
-    #     raise ValueError("Input image must be 3D with 4 channels")
 
     stride = patch_size - overlap
     
@@ -485,10 +422,6 @@ def prepare_biome8(biome_path: Path=biome_path, patch_size:int=512, overlap:int=
                     # Save the full size test images for visual scoring
                     tiff.imwrite(Path(im_folder, f"{ID}.tif"), im)
                     tiff.imwrite(Path(masks_folder, f"{ID}.tif"), mask)
-
-                    
-                # patch_size = patch_size  # Size of each patch
-                # overlap = 64  # Overlap size
                 
                 x_patched, _, _ = patch_image(im, patch_size, overlap=overlap)
                 y_patched, _, _ = patch_image(mask, patch_size, overlap=overlap)

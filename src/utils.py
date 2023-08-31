@@ -1,31 +1,30 @@
+# Matplotlib and Image Processing
 import matplotlib.pyplot as plt
 import tifffile as tiff
 from skimage.io import imread, imsave
 
+# Numerical and Data Handling
 import numpy as np
 import os
 import random
 from pathlib import Path
 from keras.utils import to_categorical
 from keras import backend as K
+from tqdm import tqdm
 
+# Image Transformation
 from skimage.transform import resize
 
-from sklearn.metrics import accuracy_score, roc_auc_score, confusion_matrix, f1_score
-
-
-from tensorflow import keras
-import numpy as np
+# Deep Learning Framework
+import tensorflow.keras as keras
 from PIL import Image
-import albumentations as A
 
-from tqdm import tqdm
-# from tqdm.notebook import tqdm
-
+# Custom Configuration and Type Hints
 from src.config import *
-
-# importing types hint
 from typing import List, Tuple, Literal
+import warnings
+warnings.filterwarnings("ignore")
+
 
 seed_value = 42
 
@@ -68,60 +67,60 @@ def resize_image(image, new_dim=(1024, 1024, 3)):
 
 
 
-def augment_data(images, masks):
-    # Define your augmentation pipeline
-    augmentation_pipeline = A.Compose([
-        A.HorizontalFlip(p=0.5),                # Horizontal flips with a 50% probability
-        A.RandomRotate90(p=0.5),               # Randomly rotate images by 90 degrees (clockwise) with a 50% probability
-        A.RandomBrightnessContrast(p=0.2),     # Random brightness and contrast adjustments with a 20% probability
-        A.Blur(p=0.1),                         # Apply slight blurring with a 10% probability
-        A.RandomCrop(height=224, width=224),   # Randomly crop the image to a specified size
-        A.Resize(height=256, width=256),       # Resize the image to a specified size
-    ])
+# def augment_data(images, masks):
+#     # Define your augmentation pipeline
+#     augmentation_pipeline = A.Compose([
+#         A.HorizontalFlip(p=0.5),                # Horizontal flips with a 50% probability
+#         A.RandomRotate90(p=0.5),               # Randomly rotate images by 90 degrees (clockwise) with a 50% probability
+#         A.RandomBrightnessContrast(p=0.2),     # Random brightness and contrast adjustments with a 20% probability
+#         A.Blur(p=0.1),                         # Apply slight blurring with a 10% probability
+#         A.RandomCrop(height=224, width=224),   # Randomly crop the image to a specified size
+#         A.Resize(height=256, width=256),       # Resize the image to a specified size
+#     ])
 
-    # Assuming 'image' is your RGBNIR image
-    # 'mask' is your segmentation mask (if applicable)
+#     # Assuming 'image' is your RGBNIR image
+#     # 'mask' is your segmentation mask (if applicable)
 
     
-    # Initialize empty lists to store augmented images and masks
-    augmented_images = []
-    augmented_masks = []
+#     # Initialize empty lists to store augmented images and masks
+#     augmented_images = []
+#     augmented_masks = []
 
-    for image, mask in zip(images, masks):
-        # Make copies of the original image and mask to keep them unchanged
-        image_copy = image.copy()
-        mask_copy = mask.copy()
+#     for image, mask in zip(images, masks):
+#         # Make copies of the original image and mask to keep them unchanged
+#         image_copy = image.copy()
+#         mask_copy = mask.copy()
 
-        # Apply the augmentation pipeline to the image and mask (if available)
-        augmented = augmentation_pipeline(image=image, mask=mask)
+#         # Apply the augmentation pipeline to the image and mask (if available)
+#         augmented = augmentation_pipeline(image=image, mask=mask)
 
-        # Retrieve the augmented image and mask
-        augmented_image = augmented['image']
-        augmented_mask = augmented['mask']
+#         # Retrieve the augmented image and mask
+#         augmented_image = augmented['image']
+#         augmented_mask = augmented['mask']
 
-        augmented_images.append(augmented_image)
-        augmented_masks.append(augmented_mask)
+#         augmented_images.append(augmented_image)
+#         augmented_masks.append(augmented_mask)
 
-    # Convert the augmented_images and augmented_masks lists back to NumPy arrays
-    augmented_images = np.array(augmented_images)
-    augmented_masks = np.array(augmented_masks)
+#     # Convert the augmented_images and augmented_masks lists back to NumPy arrays
+#     augmented_images = np.array(augmented_images)
+#     augmented_masks = np.array(augmented_masks)
 
-    # Concatenate the original images and augmented images along the first axis
-    concatenated_images = np.concatenate((images, augmented_images), axis=0)
+#     # Concatenate the original images and augmented images along the first axis
+#     concatenated_images = np.concatenate((images, augmented_images), axis=0)
 
-    # Concatenate the original masks and augmented masks along the first axis
-    concatenated_masks = np.concatenate((masks, augmented_masks), axis=0)
+#     # Concatenate the original masks and augmented masks along the first axis
+#     concatenated_masks = np.concatenate((masks, augmented_masks), axis=0)
 
-    # Now 'concatenated_images' contains both the original and augmented images
-    # 'concatenated_masks' contains both the original and augmented masks
-    # print(concatenated_images.shape, concatenated_masks.shape)
+#     # Now 'concatenated_images' contains both the original and augmented images
+#     # 'concatenated_masks' contains both the original and augmented masks
+#     # print(concatenated_images.shape, concatenated_masks.shape)
     
-    return concatenated_images, concatenated_masks
+#     return concatenated_images, concatenated_masks
 
 ###########################################################
 
 
-def get_SPARCS(sets: Literal['train', 'valid', 'test'] = 'train', full_image: bool = False, only_rgb: bool = False, binary: bool = True, resize_to:int=None, augment: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+def get_SPARCS(sets: Literal['train', 'valid', 'test'] = 'train', full_image: bool = False, only_rgb: bool = False, binary: bool = True, resize_to:int=None) -> Tuple[np.ndarray, np.ndarray]:
     '''
     Load the SPARCS dataset from the specified set (train, valid, test).
 
@@ -258,7 +257,6 @@ def get_SPARCS_generator(sets: Literal['train', 'valid', 'test'] = 'train', full
             print("Masks without corresponding images:", diff)
 
     while True:
-        # Shuffle indices if shuffle is true
         if shuffle:
             indices = np.arange(len(im_names))
             np.random.shuffle(indices)
