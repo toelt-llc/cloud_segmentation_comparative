@@ -90,6 +90,7 @@ In each notebook there is a section where the model can be selected. The models 
 4. CloudNet
 5. CloudXNet -->
 ```bash
+'unet'
 'unet_plus_plus'
 'rs_net'
 'deep_lab_v3_plus'
@@ -100,18 +101,22 @@ You can select the hyperparameters of the model in the same section, like learni
 
 After that you just need to run the notebook and the model will be trained. The logs of the training will be saved in the logs folder. The models will be saved in the models folder by running the later cells in the notebook.
 
-5. Run the notebooks for YOLOv8
+
+5. Run the notebooks for the evaluation of the models
+The next step is to run the notebooks to evaluate the models. By running Scoring.ipynb, the results of the model can be evaluated using task related metrics and with visual references. This notebook can be also found in the notebooks folder.
+There is a section where the model and the data setup on which the model was trained can be selected(for example if a model was trained on images with 3 channels or 4 channels, there is the need to specify that). After that the Scoring and Visual scoring sections should be run. Providing a comprehensive evaluation of the selected model.
+
+
+6. Run the notebooks for YOLOv8
 There is a separate notebook for YOLOv8, since it has a different training process. This notebook can be also found in the notebooks folder.
 In the first section you can decide which dataset to use for the training. The options are:
 ```bash
 'biome8'
 'SPARCS'
 ```
-After the configuration cell you can select some parameter fo the model, like number of epochs and batch size. The logs of the training will be saved in the logs folder.
+After the configuration cell you can select some parameter fo the model, like number of epochs and batch size. The logs of the training will be saved in the runs folder.
 
-6. Run the notebooks for the evaluation of the models
-The next step is to run the notebooks to evaluate the models. By running Scoring.ipynb, the results of the model can be evaluated using task related metrics and with visual references. This notebook can be also found in the notebooks folder.
-There is a section where the model and the data setup on which the model was trained can be selected(for example if a model was trained on images with 3 channels or 4 channels, there is the need to specify that). After that the Scoring and Visual scoring sections should be run. Providing a comprehensive evaluation of the selected model.
+When you have trained tour YOLO model it will be automatically saved in the weights folder under runs. Then you can use the model for the evaluation by running the YOLOv8 Scoring notebook.
 
 
 <!-- ## Results
