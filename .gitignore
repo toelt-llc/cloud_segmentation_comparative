@@ -1,6 +1,7 @@
 # data folder
 # Data/*
 # Models/*
+results/videos/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -52,20 +52,21 @@ def overlay(
     image_combined = cv.addWeighted(image, 1 - alpha, image_overlay, alpha, 0)
     
     return image_combined
+
+
+def predict_video(video_path: str, model_filename: str, stack_frames: bool = False, size: int = 1024) -> np.ndarray:
+    """Reads a video and returns its frames.
     
-
-if __name__ == "__main__":
-    """ Video Path """
-    # video_path = str(data_path / "videos/NASA_video_1.mp4")
-    # video_path = str(data_path / "videos/NASA_video_2.mp4")
-    # video_path = str(data_path / "videos/NASA_video_3.mp4")
-    video_path = str(data_path / "videos/NASA_video_4.mp4")
-
-    stack_frames = True
-
-
+    Params:
+        video_path: Path to the video.
+        stack_frames: If True, the frames are stacked along the channel axis.
+    
+    Returns:
+        video_frames: The video frames.
+    
+    """
     """ Load the model """
-    model = tf.keras.models.load_model(saved_models_path / "CloudNet_biome8_epochs100_batch16_RGB.h5", compile=False)
+    model = tf.keras.models.load_model(saved_models_path / model_filename, compile=False)
 
     """ Reading frames """
     vs = cv.VideoCapture(video_path)
@@ -81,9 +82,10 @@ if __name__ == "__main__":
 
     fourcc = cv.VideoWriter_fourcc('M','J','P','G')
     # out = cv.VideoWriter('output.avi', fourcc, 10, (W, H), True)
-    out = cv.VideoWriter(str(results_path / (video_path.split("/")[-1].split(".")[0] + "_output.avi")), fourcc, 10, (W, H*2), True)
-    # out = cv.VideoWriter(str(results_path / (video_path.split("/")[-1].split(".")[0] + "_output.avi")), fourcc, 10, (W, H), True)
-
+    if stack_frames:
+        out = cv.VideoWriter(str(results_path / 'videos' / (model_filename.split('.')[0] + '_' + video_path.split("/")[-1].split(".")[0] + "_output.avi")), fourcc, 10, (W, H*2), True)
+    else:
+        out = cv.VideoWriter(str(results_path / 'videos' / (model_filename.split('.')[0] + '_' + video_path.split("/")[-1].split(".")[0] + "_output.avi")), fourcc, 10, (W, H), True)
 
 
     cap = cv.VideoCapture(video_path)
@@ -97,7 +99,7 @@ if __name__ == "__main__":
 
         H, W, _ = frame.shape
         ori_frame = frame
-        frame = cv.resize(frame, (1024, 1024))
+        frame = cv.resize(frame, (size, size))
         frame = np.expand_dims(frame, axis=0)
         frame = frame / 255.0
 
@@ -125,3 +127,33 @@ if __name__ == "__main__":
             idx += 1
 
             out.write(combine_frame)
+
+    
+
+if __name__ == "__main__":
+    """ Video Path """
+    # video_path = str(data_path / "videos/NASA_video_1.mp4")
+    video_path = str(data_path / "videos/NASA_video_2.mp4")
+    # video_path = str(data_path / "videos/NASA_video_3.mp4")
+    # video_path = str(data_path / "videos/NASA_video_4.mp4")
+
+    stack_frames = False
+
+    # model = "CloudNet_biome8_epochs100_batch16_RGB.h5"
+
+    models = ["UNet_SPARCS_epochs300_batch16_RGB.h5", "UNet_biome8_epochs100_batch16_RGB.h5",
+              "RSNet_SPARCS_epochs300_batch16_RGB.h5", "RSNet_biome8_epochs100_batch16_RGB.h5",
+              "UNetPlusPlus_SPARCS_epochs300_batch16_RGB.h5", "UNetPlusPlus_biome8_epochs100_batch16_RGB.h5",
+              "CloudNet_SPARCS_epochs300_batch16_RGB.h5", "CloudNet_biome8_epochs100_batch16_RGB.h5"]
+    
+    for model in models:
+        predict_video(video_path, model, stack_frames)
+    
+    models = ["DLV3_SPARCS_epochs300_batch16_RGB.h5", "DLV3_biome8_epochs100_batch16_RGB.h5",
+              "CloudXNet_SPARCS_epochs300_batch16_RGB.h5", "CloudXNet_biome8_epochs100_batch16_RGB.h5"]
+    
+    for model in models:
+        predict_video(video_path, model, stack_frames, size=256)
+
+
+    

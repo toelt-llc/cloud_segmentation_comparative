@@ -9,7 +9,8 @@ import os
 project_root_path = Path(os.path.dirname(os.path.abspath(__file__))).parent
 data_path = Path(project_root_path, "Data/")
 source_path = Path(project_root_path, "src/")
-notebooks_path = Path(project_root_path, "notebooks/")
+# notebooks_path = Path(project_root_path, "notebooks/")
+notebooks_path = Path(project_root_path, "Modelling/")
 models_path = Path(project_root_path, "models/")
 results_path = Path(project_root_path, "results/")
 
@@ -32,7 +33,7 @@ yolo_data_dir = Path(data_path, "YOLO/")
 
 
 # S2_mlhub:
-s2_path = Path(data_path, "S2_mlhub/")
+s2_path = Path(data_path, "S2/")
 s2_im_path = Path(s2_path, "ref_cloud_cover_detection_challenge_v1_test_source/")
 s2_labels_path = Path(s2_path, "ref_cloud_cover_detection_challenge_v1_test_labels/")
 s2_train_dir = Path(s2_path, "train/")

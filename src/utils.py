@@ -179,6 +179,7 @@ def get_SPARCS(sets: Literal['train', 'valid', 'test'] = 'train', full_image: bo
     
     for ID in m_names:
         mask = tiff.imread(Path(m_dir, ID))
+        mask = np.squeeze(mask)
         if binary:
             mask = np.where(mask != 5, 0, mask)
             mask = np.expand_dims(mask, axis=-1)
@@ -200,10 +201,14 @@ def get_SPARCS(sets: Literal['train', 'valid', 'test'] = 'train', full_image: bo
     # np.random.shuffle(ims)
     # np.random.shuffle(masks)
     
+    # print(ims.shape, masks.shape)
+    
     if resize_to:
         new_size = resize_to
         ims = resize_image(ims, new_dim=((ims.shape[0], new_size, new_size, ims.shape[-1])))
         masks = resize_image(masks, new_dim=((masks.shape[0], new_size, new_size, masks.shape[-1])))
+
+    # print(ims.shape, masks.shape)
     
     return ims, masks
 
