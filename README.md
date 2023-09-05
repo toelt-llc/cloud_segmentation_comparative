@@ -66,6 +66,11 @@ git clone https://github.com/toelt-llc/cloud_segmentation_comparative.git
 ```bash
 pip install -r requirements.txt
 ```
+<!-- 2. Donwload the models weights
+```bash
+https://drive.google.com/drive/folders/1QgW_GihqJu6rxzJzhJWXUORWfUERSsaa?usp=sharing
+
+``` -->
 3. Download the datasets
 The first step to run the code is to execute the scipts to download the datasets. The scripts can be found in the source folder and are named as follows:
 ```bash
