@@ -1,6 +1,6 @@
 # data folder
 # Data/*
-models/*
+# models/*
 results/videos/*
 
 # Byte-compiled / optimized / DLL files
