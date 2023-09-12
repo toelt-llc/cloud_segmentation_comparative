@@ -98,7 +98,8 @@ def jacc_coef(y_true, y_pred):
 # Define the available models globally
 AVAILABLE_MODELS = {
     'simple_net': mk_simple_net,
-    'unet': mk_multi_unet_model,
+    'unet': mk_Unet,
+    'unet_2': mk_multi_unet_model,
     'unet_plus_plus': mk__unet_plusplus,
     'rs_net': mk_rs_net,
     'deep_lab_v3_plus': mk_DeeplabV3Plus,
