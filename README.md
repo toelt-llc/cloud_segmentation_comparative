@@ -1,4 +1,6 @@
 <!-- # Cloud segmentation comparative -->
+Official implementation of the paper _**BenchCloudVision**: A Benchmark Analysis of Deep Learning Approaches for Cloud Detection and Segmentation in Remote Sensing Imagery_
+[ArXiv](https://arxiv.org/abs/2402.13918)
 
 # Comparative Study on Cloud Detection Algorithms
 
@@ -127,12 +129,11 @@ After the configuration cell you can select some parameter fo the model, like nu
 
 When you have trained tour YOLO model it will be automatically saved in the weights folder under runs. Then you can use the model for the evaluation by running the YOLOv8 Scoring notebook.
 
-
-<!-- ## Results
-
-## Contributing
-
 ## License
 
-## Contact -->
+This work belong to [TOELT](https://www.toelt-ailab.com/). It is open source and available for research and developement purposes only.
 
+## Contact
+
+- [fabio.loddo@student.supsi.ch](mailto:fabio.loddo@student.supsi.ch)
+- [safouane.elghazouali@toelt.ai](mailto:safouane.elghazouali@toelt.ai)
