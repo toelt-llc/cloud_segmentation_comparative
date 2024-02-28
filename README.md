@@ -6,7 +6,7 @@ Official implementation of the paper _**BenchCloudVision**: A Benchmark Analysis
 
 This repository contains a comprehensive study and comparison of various Cloud Detection Algorithms. The goal of this research is to provide insights into the efficiency, effectiveness, and reliability of these different algorithms when applied to various types of satellite imagery.
 
-![](https://github.com/cloud_segmentation_comparative/cloud_segmentation.webm)
+[cloud_segmentation2.webm](https://github.com/toelt-llc/cloud_segmentation_comparative/assets/54261127/4a98e842-d674-4149-b7e8-68885dff4c3e)
 
 ## Table of Contents
 
@@ -125,7 +125,21 @@ In the first section you can decide which dataset to use for the training. The o
 ```
 After the configuration cell you can select some parameter fo the model, like number of epochs and batch size. The logs of the training will be saved in the runs folder.
 
-When you have trained tour YOLO model it will be automatically saved in the weights folder under runs. Then you can use the model for the evaluation by running the YOLOv8 Scoring notebook.
+When you have trained your YOLO model it will be automatically saved in the weights folder under runs. Then you can use the model for the evaluation by running the YOLOv8 Scoring notebook.
+
+## Citation
+
+If you use our repository or any of our implementation please cite us:
+```
+@misc{fabio2024benchcloudvision,
+      title={BenchCloudVision: A Benchmark Analysis of Deep Learning Approaches for Cloud Detection and Segmentation in Remote Sensing Imagery}, 
+      author={Loddo Fabio and Dario Piga and Michelucci Umberto and El Ghazouali Safouane},
+      year={2024},
+      eprint={2402.13918},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV}
+}
+```
 
 ## License
 
