@@ -6,9 +6,7 @@ Official implementation of the paper _**BenchCloudVision**: A Benchmark Analysis
 
 This repository contains a comprehensive study and comparison of various Cloud Detection Algorithms. The goal of this research is to provide insights into the efficiency, effectiveness, and reliability of these different algorithms when applied to various types of satellite imagery.
 
-![](https://github.com/toelt-llc/cloud_segmentation_comparative/blob/main/RGB_sattelite_testcloud_segmentation_.gif)
-
-![](https://github.com/cloud_segmentation_comparative/cloud_segmentation.mp4)
+![](https://github.com/cloud_segmentation_comparative/cloud_segmentation.webm)
 
 ## Table of Contents
 
