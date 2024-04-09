@@ -33,22 +33,8 @@ def main():
         if href and href.endswith(".tar.gz"):  # Modify the condition based on your specific requirements
             download_links.append(href)
 
-    # # Generate the .sh file with the wget and tar commands
-    # with open("cloud_coverage_TOELT_SUPSI/src/download_landsat8_biome.sh", "w") as file:
-    #     file.write("#!/bin/bash\n")
-    #     file.write("# Auto-generated script to download and extract files\n")
-    #     file.write("\n")
-    #     # file.write("mkdir -p /path/to/extracted/files\n")  # Replace '/path/to/extracted/files' with the desired extraction folder
-    #     file.write("\n")
-    #     for link in download_links:
-    #         file.write(f"wget {link}\n")
-    #         filename = link.split("/")[-1]
-    #         file.write(f"tar zxvf {filename} -C /home/floddo/cloud_coverage_TOELT_SUPSI/Data/L8_Biome\n")
-    #         file.write(f"rm {filename}\n")  # Optional: Remove the downloaded .tar.gz file after extraction
-
-
     # Generate the .sh file with the wget and tar commands
-    with open("cloud_coverage_TOELT_SUPSI/src/download_landsat8_biome.sh", "w") as file:
+    with open("src/download_landsat8_biome.sh", "w") as file:
         file.write("#!/bin/bash\n")
         file.write("# Auto-generated script to download and extract files\n")
         file.write("\n")
@@ -68,7 +54,7 @@ def main():
 
             file.write(f"wget {link}\n")
             filename = link.split("/")[-1]
-            file.write(f"tar zxvf {filename} -C {biome_raw_dir}/{current_biome}\n")
+            file.write(f"tar zxvf {filename} -C {biome_raw_dir.as_posix()}/{current_biome}\n")
             file.write(f"rm {filename}\n")  # Optional: Remove the downloaded .tar.gz file after extraction
 
 
