@@ -147,5 +147,5 @@ This work belong to [TOELT](https://www.toelt-ailab.com/). It is open source and
 
 ## Contact
 
-- [fabio.loddo@student.supsi.ch](mailto:fabio.loddo@student.supsi.ch)
+- [fabio.loddo@supsi.ch](mailto:fabio.loddo@supsi.ch)
 - [safouane.elghazouali@toelt.ai](mailto:safouane.elghazouali@toelt.ai)
